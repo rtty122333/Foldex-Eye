@@ -47,24 +47,23 @@ Item {
                 Layout.preferredHeight: Units.dp(8)
             }
 
-
-
             RowLayout {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width
                 spacing: 16
-                Label{
+                Label {
                     text: "服务器 IP 地址："
                 }
-                TextField{
+                TextField {
                     id: serverfield
                     floatingLabel: true
                     characterLimit: 15
                     text: serversetting.server
+                    validator: RegExpValidator {
+                        regExp: /^(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\.){3}([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))$/
+                    }
                 }
             }
-
-
 
             Item {
                 Layout.fillWidth: true
