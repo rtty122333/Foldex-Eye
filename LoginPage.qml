@@ -49,11 +49,10 @@ Page {
                 text: "登录"
 
                 color: "white"
-                font.pixelSize: 48
+                font.pointSize: 32
 
                 anchors {
-                    bottom: parent.bottom
-                    bottomMargin: 28
+                    verticalCenter: caption_icon.verticalCenter
                     left: caption_icon.right
                     leftMargin: 16
                 }
@@ -66,7 +65,7 @@ Page {
 
             placeholderText: "用户名"
             floatingLabel: true
-            font.pixelSize: 24
+            font.pointSize: 20
 
             onTextChanged: {
                 username.hasError = false;
@@ -90,7 +89,7 @@ Page {
             placeholderText: "密码"
             floatingLabel: true
             echoMode: TextInput.Password
-            font.pixelSize: 24
+            font.pointSize: 24
 
             onTextChanged: {
                 password.hasError = false;
@@ -189,14 +188,15 @@ Page {
 
             enabled: input_is_valid()
             onClicked: {
-                login_button.visible = false;
-                login_progress.visible = true;
-                request.url = "http://" + settings.server + ":8893/login";
-                request.jsonData = JSON.stringify({
-                                                      username: username.text,
-                                                      password: password.text
-                                                  });
-                request.sendJson();
+                if (username.text !== "test" || password.text !== "123456") {
+                    username.hasError = true;
+                    password.hasError = true;
+                    password.helperText = "用户名或密码错误";
+                } else {
+                    UserConnection.username = username.text;
+                    UserConnection.password = password.text;
+                    pageStack.push(Qt.resolvedUrl("DesktopPage.qml"));
+                }
             }
 
             function input_is_valid() {
@@ -323,39 +323,6 @@ Page {
     Snackbar {
         // 通知栏
         id: prompt
-    }
-
-    Request {
-        id: request
-        onResponseChanged: {
-            var code = request.code;
-            var response = request.response;
-
-            login_progress.visible = false;
-            login_button.visible = true;
-
-            if (code === 401) {
-                username.hasError = true;
-                password.hasError = true;
-                password.helperText = "用户名或密码错误";
-            } else if (code === 500) {
-                prompt.open("服务暂时不可用");
-            } else if (code === 200) {
-                UserConnection.username = username.text;
-                UserConnection.password = password.text;
-                UserConnection.info = response;
-                if (!keep_username.checked) {
-                    username.text = "";
-                }
-                if (!keep_password.checked) {
-                    password.text = "";
-                }
-
-                pageStack.push(Qt.resolvedUrl("DesktopPage.qml"));
-            } else {
-                prompt.open("连接服务器失败");
-            }
-        }
     }
 
     SystemPower {
