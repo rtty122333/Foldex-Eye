@@ -1,0 +1,127 @@
+From 1b1b3a0004ea58d72fd53c378c6fc31853135084 Mon Sep 17 00:00:00 2001
+From: solarsail <newleaf.lu@gmail.com>
+Date: Wed, 8 Jun 2016 16:29:05 +0800
+Subject: [PATCH 3/3] modified TextField & CheckBox style for Foldex
+
+---
+ modules/Material/CheckBox.qml                      |  1 +
+ modules/Material/TextField.qml                     |  2 ++
+ .../Controls/Styles/Material/CheckBoxStyle.qml     |  4 ++++
+ .../Controls/Styles/Material/TextFieldStyle.qml    | 27 +++++++++++++++++++---
+ 4 files changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/modules/Material/CheckBox.qml b/modules/Material/CheckBox.qml
+index ac42040..68a0503 100644
+--- a/modules/Material/CheckBox.qml
++++ b/modules/Material/CheckBox.qml
+@@ -38,6 +38,7 @@ Controls.CheckBox {
+        Set to \c true if the checkbox is on a dark background
+      */
+     property bool darkBackground
++    property int textSize
+ 
+     style: MaterialStyle.CheckBoxStyle {}
+ 
+diff --git a/modules/Material/TextField.qml b/modules/Material/TextField.qml
+index bb1a3db..9e743ea 100644
+--- a/modules/Material/TextField.qml
++++ b/modules/Material/TextField.qml
+@@ -31,12 +31,14 @@ import Material 0.2
+ Controls.TextField {
+ 
+     property color color: Theme.accentColor
++    property color boxColor: Theme.accentColor
+     property color errorColor: Palette.colors["red"]["500"]
+     property string helperText
+     property bool floatingLabel: false
+     property bool hasError: characterLimit && length > characterLimit
+     property int characterLimit
+     property bool showBorder: true
++    property bool showBox: false
+ 
+     style: MaterialStyle.TextFieldStyle {}
+ }
+diff --git a/modules/QtQuick/Controls/Styles/Material/CheckBoxStyle.qml b/modules/QtQuick/Controls/Styles/Material/CheckBoxStyle.qml
+index 5ca01e3..3f542b1 100644
+--- a/modules/QtQuick/Controls/Styles/Material/CheckBoxStyle.qml
++++ b/modules/QtQuick/Controls/Styles/Material/CheckBoxStyle.qml
+@@ -29,6 +29,9 @@ CheckBoxStyle {
+     property bool darkBackground: control.hasOwnProperty("darkBackground")
+             ? control.darkBackground : false
+ 
++    property int textSize: control.hasOwnProperty("textSize")
++            ? control.textSize : 14
++
+     spacing: 0
+ 
+     label: Item {
+@@ -51,6 +54,7 @@ CheckBoxStyle {
+                                    : darkBackground ? Theme.alpha("#fff", 0.30)
+                                                     : Theme.alpha("#000", 0.26)
+             text: control.text
++            font.pixelSize: control.textSize
+         }
+     }
+ 
+diff --git a/modules/QtQuick/Controls/Styles/Material/TextFieldStyle.qml b/modules/QtQuick/Controls/Styles/Material/TextFieldStyle.qml
+index 4131e54..62b2f93 100644
+--- a/modules/QtQuick/Controls/Styles/Material/TextFieldStyle.qml
++++ b/modules/QtQuick/Controls/Styles/Material/TextFieldStyle.qml
+@@ -25,7 +25,7 @@ TextFieldStyle {
+     id: style
+ 
+     padding {
+-        left: 0
++        left: 6
+         right: 0
+         top: 0
+         bottom: 0
+@@ -45,6 +45,7 @@ TextFieldStyle {
+         id: background
+ 
+         property color color: control.hasOwnProperty("color") ? control.color : Theme.accentColor
++        property color boxColor: control.hasOwnProperty("boxColor") ? control.boxColor : Theme.light.hintColor
+         property color errorColor: control.hasOwnProperty("errorColor")
+                 ? control.errorColor : Palette.colors["red"]["500"]
+         property string helperText: control.hasOwnProperty("helperText") ? control.helperText : ""
+@@ -53,6 +54,24 @@ TextFieldStyle {
+                 ? control.hasError : characterLimit && control.length > characterLimit
+         property int characterLimit: control.hasOwnProperty("characterLimit") ? control.characterLimit : 0
+         property bool showBorder: control.hasOwnProperty("showBorder") ? control.showBorder : true
++        property bool showBox: control.hasOwnProperty("showBox") ? control.showBox && !showBorder : false
++
++        Rectangle {
++            id: border
++            radius: 2
++            color: "transparent"
++            border.color: background.hasError ? background.errorColor
++                                    : control.activeFocus ? Theme.accentColor
++                                                          : control.boxColor
++
++            anchors.fill: parent
++            border.width: Units.dp(1)
++            visible: background.showBox
++
++            Behavior on border.color {
++                ColorAnimation { duration: 200 }
++            }
++        }
+ 
+         Rectangle {
+             id: underline
+@@ -84,8 +103,10 @@ TextFieldStyle {
+ 
+             anchors.verticalCenter: parent.verticalCenter
+             text: control.placeholderText
+-            font.pixelSize: Units.dp(16)
+-            anchors.margins: -Units.dp(12)
++            font.pixelSize: control.font.pixelSize
++            //anchors.margins: -Units.dp(12)
++            anchors.left: parent.left
++            anchors.leftMargin: Units.dp(6)
+             color: background.hasError ? background.errorColor
+                                   : control.activeFocus && control.text !== ""
+                                         ? background.color : Theme.light.hintColor
+-- 
+2.7.1.windows.2
+

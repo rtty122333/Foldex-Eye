@@ -1,7 +1,7 @@
 From 58accf3994ee00692c84962f9dcdcebc6086217d Mon Sep 17 00:00:00 2001
 From: solarsail <newleaf.lu@gmail.com>
 Date: Thu, 28 Apr 2016 15:41:50 +0800
-Subject: [PATCH] unset default font (previously Roboco)
+Subject: [PATCH 1/3] unset default font (previously Roboco)
 
 ---
  modules/Material/Label.qml                                  | 1 -

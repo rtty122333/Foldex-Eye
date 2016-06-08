@@ -1,7 +1,7 @@
 From cfce96535cc5fcbd8663c86a68a13b0c40376aa9 Mon Sep 17 00:00:00 2001
 From: solarsail <newleaf.lu@gmail.com>
 Date: Fri, 6 May 2016 11:21:52 +0800
-Subject: [PATCH] fix radiobutton center alignment
+Subject: [PATCH 2/3] fix radiobutton center alignment
 
 ---
  modules/QtQuick/Controls/Styles/Material/RadioButtonStyle.qml | 5 ++++-
