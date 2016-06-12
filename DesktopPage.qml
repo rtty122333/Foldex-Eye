@@ -9,14 +9,47 @@ import "./settingPage"
 Page {
     id: desktop_selection
 
-    backAction: Action {
-        text: "返回"
-        iconName: "navigation/arrow_back"
-        onTriggered: desktop_selection.pop()
-        visible: canGoBack
+    actionBar.hidden: true
+
+    Image {
+        fillMode: Image.PreserveAspectFit
+        source: "image/1920.png"
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+        }
+    }
+
+    Row {
+        // 左上按钮栏
+        anchors {
+            top: parent.top
+            topMargin: 24
+            left: parent.left
+            leftMargin: 24
+        }
+
+        spacing: 18
+
+        Action {
+            id: backAction
+            iconName: "navigation/arrow_back"
+            text: "返回"
+        }
+
+        IconButton {
+            action: backAction
+            size: 24
+            color: Theme.dark.iconColor
+            onClicked: desktop_selection.pop()
+            visible: canGoBack
+        }
     }
 
     property bool heartbeat_error: false
+    property date session_start: new Date()
+    property int rdp_retry: 0
 
     Component.onCompleted: {
         parse_info();
@@ -42,24 +75,43 @@ Page {
         }
     }
 
+    ProgressCircle {
+        // 连接过程中显示进度圈
+        id: conn_progress
+        anchors.centerIn: vm_buttons
+
+        visible: false
+    }
+
     ListModel {
         id: hosts
     }
 
     Row {
-        anchors.centerIn: parent
-        spacing: 20
+        id: vm_buttons
+        anchors {
+            bottom: parent.bottom
+            bottomMargin: 100
+            horizontalCenter: parent.horizontalCenter
+        }
+        spacing: 25
 
         Repeater {
             model: hosts
 
             delegate: Button {
                 text: name;
+                width: Units.dp(200)
+                height: Units.dp(48)
+                backgroundColor: Theme.accentColor
+                activeFocusOnPress: true
                 onClicked: {
                     UserConnection.currentVm = vm_id;
                     request.url = "http://" + serversetting.server + ":8893/v1/conn";
                     request.jsonData = JSON.stringify({ 'token': token, 'vm_id': vm_id });
                     request.sendJson();
+                    vm_buttons.visible = false;
+                    conn_progress.visible = true;
                 }
             }
 
@@ -78,12 +130,25 @@ Page {
 
         onFinished: {
             var code = rdp.status();
-            if (code !== 0) {
-                prompt.open("连接错误：" + rdp.status())
-            }
             if (desktop_selection.heartbeat_error) { // 心跳异常，需要重新登录
                 desktop_selection.pop();
             }
+            if (code !== 0) {
+                prompt.open("连接错误：" + rdp.status())
+            } else if (new Date() - desktop_selection.session_start < 500) {
+                // 0.5秒内断开，可能是vm未完全启动，或其他异常情况，重试
+                if (desktop_selection.rdp_retry == 10) {
+                    // 重试次数超过阈值
+                    prompt.open("无法连接到桌面");
+                } else {
+                    desktop_selection.rdp_retry++;
+                    rdp_repeater.start();
+                    return;
+                }
+            }
+            conn_progress.visible = false;
+            vm_buttons.visible = true;
+            desktop_selection.rdp_retry = 0;
 
             heartbeat.startSending(UserConnection.token);
             // 断开连接
@@ -105,6 +170,7 @@ Page {
                 rdp.host = response[UserConnection.currentVm]["rdp_ip"];
                 rdp.port = response[UserConnection.currentVm]["rdp_port"];
                 rdp.policy = response[UserConnection.currentVm]["policy"];
+                desktop_selection.session_start = new Date();
                 rdp.start();
                 heartbeat.startSending(UserConnection.token, UserConnection.currentVm);
             } else {
@@ -133,5 +199,15 @@ Page {
 
     Snackbar {
         id: prompt
+    }
+
+    Timer {
+        id: rdp_repeater
+        interval: 1000
+        repeat: false
+        onTriggered: {
+            desktop_selection.session_start = new Date();
+            rdp.start();
+        }
     }
 }

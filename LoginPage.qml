@@ -114,7 +114,7 @@ Page {
                 top: password.bottom
                 topMargin: -6
                 left: password.left
-                leftMargin: -16
+                leftMargin: -15
             }
             text: "记住用户名"
             textSize: 10
@@ -230,7 +230,7 @@ Page {
     }
 
     Row {
-        // 右下按钮栏
+        // 右上按钮栏
         anchors {
             top: parent.top
             topMargin: 24
@@ -308,7 +308,8 @@ Page {
             if (code === 401) {
                 username.hasError = true;
                 password.hasError = true;
-                password.helperText = "用户名或密码错误";
+                //password.helperText = "用户名或密码错误";
+                prompt.open("用户名或密码错误");
             } else if (code === 500) {
                 prompt.open("服务暂时不可用");
             } else if (code === 200) {
