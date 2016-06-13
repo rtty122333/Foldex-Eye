@@ -17,13 +17,16 @@ Page {
     property int selectedComponent: 0
     property var settingName: [{
             name: "网络设置",
-            url: "network.qml"
+            url: "network.qml",
+            icon: "notification/wifi"
         }, {
             name: "服务器配置",
-            url: "server.qml"
+            url: "server.qml",
+            icon: "device/storage"
         }, {
             name: "协议配置",
-            url: "protocol.qml"
+            url: "protocol.qml",
+            icon: "action/swap_horiz"
         }]
 
     Sidebar {
@@ -41,6 +44,11 @@ Page {
                     onClicked: {
                         settingpage.selectedComponent = index
                         console.log(settingName[index].url)
+                    }
+                    action: Icon {
+                        anchors.centerIn: parent
+                        name: settingName[index].icon
+                        size: 24
                     }
                 }
             }
