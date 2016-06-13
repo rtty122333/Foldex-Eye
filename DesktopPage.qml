@@ -9,11 +9,42 @@ import "./settingPage"
 Page {
     id: desktop_selection
 
-    backAction: Action {
-        text: "返回"
-        iconName: "navigation/arrow_back"
-        onTriggered: desktop_selection.pop()
-        visible: canGoBack
+    actionBar.hidden: true
+
+    Image {
+        fillMode: Image.PreserveAspectFit
+        source: "image/1920.png"
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+        }
+    }
+
+    Row {
+        // 左上按钮栏
+        anchors {
+            top: parent.top
+            topMargin: 24
+            left: parent.left
+            leftMargin: 24
+        }
+
+        spacing: 18
+
+        Action {
+            id: backAction
+            iconName: "navigation/arrow_back"
+            text: "返回"
+        }
+
+        IconButton {
+            action: backAction
+            size: 24
+            color: Theme.dark.iconColor
+            onClicked: desktop_selection.pop()
+            visible: canGoBack
+        }
     }
 
     property bool heartbeat_error: false
@@ -70,6 +101,10 @@ Page {
 
             delegate: Button {
                 text: name;
+                width: Units.dp(200)
+                height: Units.dp(48)
+                backgroundColor: Theme.accentColor
+                activeFocusOnPress: true
                 onClicked: {
                     UserConnection.currentVm = vm_id;
                     request.url = "http://" + serversetting.server + ":8893/v1/conn";

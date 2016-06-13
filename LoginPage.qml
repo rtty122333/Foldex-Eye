@@ -1,4 +1,5 @@
 import QtQuick 2.4
+import QtQuick.Controls 1.4 as QmlControls
 import Material 0.2
 import com.evercloud.http 0.1
 import com.evercloud.conn 0.1
@@ -8,6 +9,25 @@ import "./settingPage"
 Page {
     actionBar.hidden: true
 
+    Image {
+        fillMode: Image.PreserveAspectCrop
+        source: "image/bg_1366x768.png"
+        anchors.fill: parent
+    }
+
+    Image {
+        anchors {
+            top: parent.top
+            topMargin: 20
+            left: parent.left
+            leftMargin: 24
+        }
+
+        source: "image/logo.png"
+        sourceSize.width: 197
+        sourceSize.height: 39
+    }
+
     Settingstore {
         id: settings
     }
@@ -15,49 +35,23 @@ Page {
     View {
         // 背景卡片
         radius: 3
-        width: 400
-        height: 500
+        width: 490
+        height: 363
         elevation: 3
         backgroundColor: "white"
         anchors.centerIn: parent
 
-        View {
-            // 标题板
-            id: caption
-
-            width: parent.width
-            height: 150
-            radius: 3
-            backgroundColor: Theme.primaryColor
-            elevation: 1
-
-            Icon {
-                id: caption_icon
-                name: "action/account_circle"
-                color: "white"
-                size: 48
-
-                anchors {
-                    bottom: parent.bottom
-                    bottomMargin: 32
-                    left: parent.left
-                    leftMargin: 50
-                }
+        Image {
+            id: logo
+            anchors {
+                top: parent.top
+                topMargin: 45
+                horizontalCenter: parent.horizontalCenter
             }
 
-            Text {
-                text: "登录"
-
-                color: "white"
-                font.pixelSize: 48
-
-                anchors {
-                    bottom: parent.bottom
-                    bottomMargin: 28
-                    left: caption_icon.right
-                    leftMargin: 16
-                }
-            }
+            source: "image/logo.png"
+            sourceSize.width: 197
+            sourceSize.height: 39
         }
 
         TextField {
@@ -65,8 +59,10 @@ Page {
             id: username
 
             placeholderText: "用户名"
-            floatingLabel: true
-            font.pixelSize: 24
+            font.pixelSize: 14
+            showBorder: false
+            showBox: true
+            boxColor: "#d6d6d6"
 
             onTextChanged: {
                 username.hasError = false;
@@ -75,10 +71,11 @@ Page {
                 }
             }
 
-            width: 300
+            width: 280
+            height: 30
             anchors {
-                top: caption.bottom
-                topMargin: 64
+                top: logo.bottom
+                topMargin: 95
                 horizontalCenter: parent.horizontalCenter
             }
         }
@@ -88,9 +85,11 @@ Page {
             id: password
 
             placeholderText: "密码"
-            floatingLabel: true
             echoMode: TextInput.Password
-            font.pixelSize: 24
+            font.pixelSize: 14
+            showBorder: false
+            showBox: true
+            boxColor: "#d6d6d6"
 
             onTextChanged: {
                 password.hasError = false;
@@ -100,71 +99,59 @@ Page {
                 }
             }
 
-            width: 300
+            width: 280
+            height: 30
             anchors {
                 top: username.bottom
-                topMargin: 32
+                topMargin: 10
                 horizontalCenter: parent.horizontalCenter
             }
         }
 
-        Row {
-            // 开关栏
+        CheckBox {
+            id: keep_username
             anchors {
-                horizontalCenter: parent.horizontalCenter
                 top: password.bottom
-                topMargin: 32
+                topMargin: -6
+                left: password.left
+                leftMargin: -15
             }
-
-            spacing: 16
-
-            Switch {
-                id: keep_username
-                enabled: username.text !== ""
-                checked: true
-                onCheckedChanged: function () {
-                    if (keep_username.checked == false) {
-                        keep_password.checked = false
-                    }
-                }
-            }
-
-            Label {
-                text: "记住用户名"
-                anchors.verticalCenter: keep_username.verticalCenter
-            }
-
-            Rectangle {
-                color: "white"
-                width: 1
-                height: 24
-                anchors.verticalCenter: parent.verticalCenter
-            }
-
-            Switch {
-                id: keep_password
-                enabled: password.text !== "" && keep_username.checked
-                checked: true
-            }
-
-            Label {
-                text: "记住密码"
-                anchors.verticalCenter: keep_password.verticalCenter
-            }
-            Component.onCompleted: {
-                if (settings.user !== '') {
-                    username.text = settings.user
-                    keep_username.checked = true
-                } else {
-                    keep_username.checked = false
-                }
-
-                if (settings.passwd !== '') {
-                    password.text = settings.passwd
-                    keep_password.checked = true
-                } else {
+            text: "记住用户名"
+            textSize: 10
+            enabled: username.text !== ""
+            onCheckedChanged: function () {
+                if (keep_username.checked == false) {
                     keep_password.checked = false
                 }
+            }
+        }
+
+        CheckBox {
+            id: keep_password
+            anchors {
+                top: password.bottom
+                topMargin: -6
+                right: password.right
+            }
+            text: "记住密码"
+            textSize: 10
+            enabled: password.text !== "" && keep_username.checked
+            checked: true
+        }
+
+        Component.onCompleted: {
+            if (settings.user !== '') {
+                username.text = settings.user
+                keep_username.checked = true
+            } else {
+                keep_username.checked = false
+            }
+
+            if (settings.passwd !== '') {
+                password.text = settings.passwd
+                keep_password.checked = true
+            } else {
+                keep_password.checked = false
             }
         }
 
@@ -179,11 +166,15 @@ Page {
             // 登录按钮
             id: login_button
             anchors {
-                bottom: parent.bottom
-                bottomMargin: 32
+                top: keep_username.bottom
+                topMargin: -1
                 horizontalCenter: parent.horizontalCenter
             }
 
+            width: 280
+            height: 32
+
+            text: "登录"
             elevation: 1
             backgroundColor: Theme.accentColor
 
@@ -201,14 +192,6 @@ Page {
 
             function input_is_valid() {
                 return username.text !== "" && password.text !== "";
-            }
-
-            Icon {
-                name: "action/done"
-                size: 32
-                color: "white"
-
-                anchors.centerIn: parent
             }
         }
     }
@@ -247,15 +230,15 @@ Page {
     }
 
     Row {
-        // 右下按钮栏
+        // 右上按钮栏
         anchors {
-            bottom: parent.bottom
-            bottomMargin: 32
+            top: parent.top
+            topMargin: 24
             right: parent.right
-            rightMargin: 32
+            rightMargin: 24
         }
 
-        spacing: 32
+        spacing: 18
 
         Action {
             id: rebootAction
@@ -269,11 +252,25 @@ Page {
             text: "关机"
         }
 
+        Action {
+            id: settingAction
+            iconName: "action/settings"
+            text: "系统设置"
+        }
+
+        IconButton {
+            action: settingAction
+            size: 24
+            hoverAnimation: true
+            color: Theme.dark.iconColor
+            onClicked: pageStack.push(Qt.resolvedUrl("SettingPage.qml"))
+        }
+
         IconButton {
             action: rebootAction
-            size: 32
+            size: 24
             hoverAnimation: true
-            color: Theme.light.iconColor
+            color: Theme.dark.iconColor
             onClicked: {
                 shutDownDialog.powerAction = "reboot";
                 shutDownDialog.text = "确定要重启吗？"
@@ -283,40 +280,14 @@ Page {
 
         IconButton {
             action: shutDownAction
-            size: 32
-            color: Theme.light.iconColor
+            size: 24
+            color: Theme.dark.iconColor
             hoverAnimation: true
             onClicked: {
                 shutDownDialog.powerAction = "shutdown";
                 shutDownDialog.text = "确定要关机吗？"
                 shutDownDialog.show()
             }
-        }
-    }
-
-    Row {
-        // 左下按钮栏
-        anchors {
-            bottom: parent.bottom
-            bottomMargin: 32
-            left: parent.left
-            leftMargin: 32
-        }
-
-        spacing: 32
-
-        Action {
-            id: settingAction
-            iconName: "action/settings"
-            text: "系统设置"
-        }
-
-        IconButton {
-            action: settingAction
-            size: 32
-            hoverAnimation: true
-            color: Theme.light.iconColor
-            onClicked: pageStack.push(Qt.resolvedUrl("SettingPage.qml"))
         }
     }
 
@@ -337,7 +308,8 @@ Page {
             if (code === 401) {
                 username.hasError = true;
                 password.hasError = true;
-                password.helperText = "用户名或密码错误";
+                //password.helperText = "用户名或密码错误";
+                prompt.open("用户名或密码错误");
             } else if (code === 500) {
                 prompt.open("服务暂时不可用");
             } else if (code === 200) {

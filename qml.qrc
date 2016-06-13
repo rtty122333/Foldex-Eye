@@ -8,5 +8,9 @@
         <file>settingPage/protocol.qml</file>
         <file>settingPage/server.qml</file>
         <file>settingPage/Settingstore.qml</file>
+        <file>image/1366.png</file>
+        <file>image/1920.png</file>
+        <file>image/bg_1366x768.png</file>
+        <file>image/logo.png</file>
     </qresource>
 </RCC>

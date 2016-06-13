@@ -17,7 +17,7 @@ ApplicationWindow {
 
     theme {
         primaryColor: "blue"
-        accentColor: Palette.colors["amber"]["700"]
+        accentColor: "#2196f3"//Palette.colors["amber"]["700"]
         tabHighlightColor: "white"
     }
 
